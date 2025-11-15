@@ -17,6 +17,11 @@ interface ValidateMessage {
   scope: 'selected' | 'page';
 }
 
+interface SelectionChangedMessage {
+  type: 'selection-changed';
+  applyToPage: boolean;
+}
+
 interface ApplyFixMessage {
   type: 'apply-fix';
   nodeId: string;
@@ -34,7 +39,7 @@ interface ResizeMessage {
   height: number;
 }
 
-type CodePluginMessage = ValidateMessage | ApplyFixMessage | FixAllMessage | ResizeMessage;
+type CodePluginMessage = ValidateMessage | ApplyFixMessage | FixAllMessage | ResizeMessage | SelectionChangedMessage;
 
 // Função para validar se está em kebab-case (permite -- para modificadores)
 function isKebabCase(name: string): boolean {
@@ -283,12 +288,49 @@ function getAllLayers(node: BaseNode): SceneNode[] {
       // Adiciona o child apenas se for um SceneNode válido
       if ('name' in child) {
         layers.push(child as SceneNode);
+        // Recursivamente busca em filhos
         layers.push(...getAllLayers(child));
       }
     }
   }
   
   return layers;
+}
+
+// Função para encontrar todas as layers com o mesmo nome
+function findLayersByName(name: string): SceneNode[] {
+  const allLayers = getAllLayers(figma.currentPage);
+  return allLayers.filter(layer => layer.name === name);
+}
+
+// Função para validar seleção com modo inteligente
+function validateSelection(applyToPage: boolean): ValidationResult[] {
+  const selection = figma.currentPage.selection as SceneNode[];
+  
+  if (selection.length === 0) {
+    return [];
+  }
+  
+  // Se applyToPage está ativo e há uma seleção
+  if (applyToPage && selection.length > 0) {
+    // Pega os nomes únicos dos layers selecionados
+    const selectedNames = new Set(selection.map(node => node.name));
+    
+    // Busca TODOS os layers na página que tenham esses nomes
+    const allMatchingLayers: SceneNode[] = [];
+    selectedNames.forEach(name => {
+      const matches = findLayersByName(name);
+      allMatchingLayers.push(...matches);
+    });
+    
+    // Remove duplicatas (caso tenha)
+    const uniqueLayers = Array.from(new Set(allMatchingLayers));
+    
+    return uniqueLayers.map(node => validateLayerName(node));
+  }
+  
+  // Modo normal: valida apenas os selecionados
+  return selection.map(node => validateLayerName(node));
 }
 
 // Função para validar escopo
@@ -316,13 +358,15 @@ function applyFix(nodeId: string, newName: string): boolean {
 
 // Handler de mensagens
 figma.ui.onmessage = (msg: CodePluginMessage) => {
-  console.log('Mensagem recebida:', msg);
-  
   if (msg.type === 'validate') {
-    console.log('Validando scope:', msg.scope);
     const results = validateScope(msg.scope);
-    console.log('Resultados:', results);
-    
+    figma.ui.postMessage({
+      type: 'validation-results',
+      results
+    } as ValidationMessage);
+  } else if (msg.type === 'selection-changed') {
+    // Nova mensagem: seleção mudou com informação do checkbox
+    const results = validateSelection(msg.applyToPage);
     figma.ui.postMessage({
       type: 'validation-results',
       results
@@ -347,33 +391,12 @@ figma.ui.onmessage = (msg: CodePluginMessage) => {
 
 // Listener para mudanças de seleção
 figma.on('selectionchange', () => {
-  const selection = figma.currentPage.selection as SceneNode[];
-  
-  if (selection.length > 0) {
-    const results = selection.map(node => validateLayerName(node));
-    figma.ui.postMessage({
-      type: 'validation-results',
-      results
-    } as ValidationMessage);
-  } else {
-    // Limpa os resultados quando não há seleção
-    figma.ui.postMessage({
-      type: 'validation-results',
-      results: []
-    } as ValidationMessage);
-  }
+  // Envia notificação para a UI atualizar baseado no estado atual do checkbox
+  figma.ui.postMessage({
+    type: 'trigger-validation'
+  });
 });
 
 // Mostrar UI
 figma.showUI(__html__, { width: 240, height: 100 });
-
-// Valida a seleção inicial quando o plugin é aberto
-const initialSelection = figma.currentPage.selection as SceneNode[];
-if (initialSelection.length > 0) {
-  const results = initialSelection.map(node => validateLayerName(node));
-  figma.ui.postMessage({
-    type: 'validation-results',
-    results
-  } as ValidationMessage);
-}
 

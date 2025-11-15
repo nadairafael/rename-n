@@ -1,4 +1,79 @@
-pare# Casos de Teste para o Plugin
+# Casos de Teste para o Plugin
+
+## 🆕 Novos Testes - Modo Inteligente (Batch Validation)
+
+### Test 1: Buscar Layers com Nome Duplicado
+**Setup:**
+1. Crie 5 layers com o nome "Button" em diferentes lugares da página
+2. Crie 3 layers com o nome "Icon"
+
+**Passos:**
+1. Abra o plugin
+2. Marque "Apply to current page"
+3. Selecione um dos layers "Button"
+
+**Resultado Esperado:**
+- Badge mostra "🔍 Found 5 layers with the same name"
+- Mostra 5 cards de validação (um para cada "Button")
+- Sugestão: "button" (kebab-case)
+
+### Test 2: Corrigir em Lote
+**Setup:**
+1. Continue do Test 1
+2. Mantenha um "Button" selecionado com checkbox marcado
+
+**Passos:**
+1. Clique em "Fix All"
+
+**Resultado Esperado:**
+- Todos os 5 "Button" são renomeados para "button"
+- Notificação: "5 layers renamed successfully!"
+- Após correção, mostra 5 cards verdes ✅
+
+### Test 3: Alternar Entre Modo Normal e Inteligente
+**Setup:**
+1. Crie 3 layers "MyLayer"
+
+**Passos:**
+1. Selecione um "MyLayer" (checkbox desmarcado)
+   - Deve mostrar apenas 1 layer
+2. Marque o checkbox "Apply to current page"
+   - Deve mostrar badge + 3 layers
+3. Desmarque o checkbox
+   - Deve voltar a mostrar apenas 1 layer
+
+**Resultado Esperado:**
+- Plugin alterna dinamicamente entre os modos
+- Badge aparece/desaparece conforme o estado do checkbox
+
+### Test 4: Múltiplos Nomes Selecionados
+**Setup:**
+1. Crie 3 layers "Button"
+2. Crie 2 layers "Icon"
+
+**Passos:**
+1. Marque "Apply to current page"
+2. Selecione um "Button" E um "Icon" (multi-seleção)
+
+**Resultado Esperado:**
+- Badge mostra "🔍 Found 5 layers with the same name"
+- Mostra validação de todos os "Button" + todos os "Icon"
+
+### Test 5: Validação em Tempo Real com Batch
+**Setup:**
+1. Crie 4 layers "TestLayer"
+2. Marque "Apply to current page"
+
+**Passos:**
+1. Selecione um "TestLayer"
+2. No Figma, altere manualmente um dos "TestLayer" para outro nome
+3. Observe o plugin
+
+**Resultado Esperado:**
+- Ao mudar o nome no Figma, a validação atualiza automaticamente
+- Badge muda para "🔍 Found 3 layers with the same name"
+
+---
 
 ## Como Testar
 

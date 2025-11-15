@@ -208,41 +208,55 @@
 
     .apply-btn {
       width: 100%;
-      height: 28px;
-      padding: 0 16px;
-      background: transparent;
-      color: #18a0fb;
-      border: 1px solid #18a0fb;
-      border-radius: 6px;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .apply-btn:hover {
-      background: #18a0fb;
-      color: #fff;
-    }
-
-    .apply-btn:active {
-      transform: scale(0.98);
-    }
-
-    .fix-all-btn {
-      width: 100%;
-      height: 28px;
+      height: 32px;
       padding: 0 16px;
       background: #18a0fb;
       color: #fff;
       border: none;
       border-radius: 6px;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(24, 160, 251, 0.3);
+    }
+
+    .apply-btn:hover {
+      background: #0b7dd6;
+      box-shadow: 0 4px 12px rgba(24, 160, 251, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .apply-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .batch-fix-btn {
+      height: 36px;
+      font-size: 12px;
+      background: linear-gradient(135deg, #18a0fb 0%, #0d99ff 100%);
+      box-shadow: 0 4px 12px rgba(24, 160, 251, 0.4);
+    }
+
+    .batch-fix-btn:hover {
+      background: linear-gradient(135deg, #0b7dd6 0%, #0d8fe6 100%);
+      box-shadow: 0 6px 16px rgba(24, 160, 251, 0.5);
+    }
+
+    .fix-all-btn {
+      width: 100%;
+      height: 32px;
+      padding: 0 16px;
+      background: #18a0fb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 8px;
@@ -250,14 +264,47 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 8px rgba(24, 160, 251, 0.3);
     }
 
     .fix-all-btn:hover {
       background: #0b7dd6;
+      box-shadow: 0 4px 12px rgba(24, 160, 251, 0.4);
+      transform: translateY(-1px);
     }
 
     .fix-all-btn:active {
-      transform: scale(0.98);
+      transform: translateY(0) scale(0.98);
+    }
+
+    .batch-card {
+      border: 2px solid #18a0fb;
+    }
+
+    .batch-success-message {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .batch-count {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4ade80;
+      margin-bottom: 8px;
+    }
+
+    .batch-name {
+      font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .batch-description {
+      font-size: 11px;
+      color: #999;
+      line-height: 1.5;
     }
 
     .empty-state {
@@ -280,6 +327,29 @@
       font-size: 11px;
       line-height: 1.5;
       color: #999;
+    }
+
+    .batch-mode-badge {
+      background: rgba(24, 160, 251, 0.15);
+      border: 1px solid rgba(24, 160, 251, 0.3);
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 10px;
+      color: #18a0fb;
+      font-weight: 500;
+    }
+
+    .badge-icon {
+      font-size: 14px;
+    }
+
+    .badge-text {
+      line-height: 1.4;
     }
 
     .valid-layer-name {
@@ -338,20 +408,33 @@
     const validateButton = document.querySelector('.validate-btn');
     const resultsContainer = document.querySelector('.results');
 
-    // Botão de validar
+    // Função para validar baseado no estado atual
+    function triggerValidation() {
+      const applyToPage = applyToPageCheckbox.checked;
+      
+      parent.postMessage({
+        pluginMessage: {
+          type: 'selection-changed',
+          applyToPage: applyToPage
+        }
+      }, '*');
+    }
+
+    // Listener para mudanças no checkbox
+    applyToPageCheckbox.addEventListener('change', () => {
+      triggerValidation();
+    });
+
+    // Botão de validar (agora força validação da página toda)
     validateButton.addEventListener('click', () => {
       const scope = applyToPageCheckbox.checked ? 'page' : 'selected';
-      console.log('Botão validate clicado, scope:', scope);
       
-      // Envia mensagem para o plugin
       parent.postMessage({
         pluginMessage: {
           type: 'validate',
           scope: scope
         }
       }, '*');
-      
-      console.log('Mensagem enviada para o plugin');
     });
 
     // Função para criar card de layer válida
@@ -368,6 +451,84 @@
           <div class="valid-layer-name">${escapeHtml(result.currentName)}</div>
         </div>
       `;
+      
+      return card;
+    }
+
+    // Função para criar card BATCH de layers válidas
+    function createBatchValidCard(results) {
+      const card = document.createElement('div');
+      card.className = 'card batch-card';
+      
+      card.innerHTML = `
+        <div class="card-header valid">
+          <span class="icon">✅</span>
+          <span>Valid</span>
+        </div>
+        <div class="card-body">
+          <div class="batch-success-message">
+            <div class="batch-count">${results.length} layers</div>
+            <div class="batch-name">${escapeHtml(results[0].currentName)}</div>
+            <div class="batch-description">All layers have correct nomenclature! 🎉</div>
+          </div>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Função para criar card BATCH de layers inválidas
+    function createBatchInvalidCard(results) {
+      const card = document.createElement('div');
+      card.className = 'card batch-card';
+      
+      const result = results[0]; // Usa o primeiro como referência
+      const errorsHtml = result.errors.map(error => `<li>${escapeHtml(error)}</li>`).join('');
+      
+      card.innerHTML = `
+        <div class="card-header invalid">
+          <span class="icon">❌</span>
+          <span>Invalid (${results.length} layers)</span>
+        </div>
+        <div class="card-body">
+          <div class="layer-name">
+            <div class="current-name">
+              Current: <strong>${escapeHtml(result.currentName)}</strong>
+            </div>
+            <div class="suggested-name">
+              Suggested: <strong>${escapeHtml(result.suggestedName)}</strong>
+            </div>
+          </div>
+          <div class="errors">
+            <div class="errors-title">Errors:</div>
+            <ul>${errorsHtml}</ul>
+          </div>
+          <button class="apply-btn batch-fix-btn">
+            ✨ Fix All ${results.length} Layers
+          </button>
+        </div>
+      `;
+      
+      // Adiciona listener ao botão
+      const applyBtn = card.querySelector('.apply-btn');
+      applyBtn.addEventListener('click', () => {
+        const fixes = results.map(r => ({
+          nodeId: r.nodeId,
+          newName: r.suggestedName
+        }));
+        
+        parent.postMessage({
+          pluginMessage: {
+            type: 'fix-all',
+            fixes
+          }
+        }, '*');
+        
+        // Re-valida após aplicar
+        setTimeout(() => {
+          triggerValidation();
+        }, 100);
+      });
       
       return card;
     }
@@ -414,15 +575,9 @@
           }
         }, '*');
         
-        // Re-valida após aplicar
+        // Re-valida após aplicar usando o modo inteligente
         setTimeout(() => {
-          const scope = applyToPageCheckbox.checked ? 'page' : 'selected';
-          parent.postMessage({
-            pluginMessage: {
-              type: 'validate',
-              scope: scope
-            }
-          }, '*');
+          triggerValidation();
         }, 100);
       });
       
@@ -448,15 +603,9 @@
           }
         }, '*');
         
-        // Re-valida após aplicar
+        // Re-valida após aplicar usando o modo inteligente
         setTimeout(() => {
-          const scope = applyToPageCheckbox.checked ? 'page' : 'selected';
-          parent.postMessage({
-            pluginMessage: {
-              type: 'validate',
-              scope: scope
-            }
-          }, '*');
+          triggerValidation();
         }, 100);
       });
       
@@ -487,7 +636,7 @@
         emptyState.className = 'empty-state-message';
         emptyState.innerHTML = `
           <div class="empty-icon">👆</div>
-          <div class="empty-text">Selecione um layer para validar sua nomenclatura</div>
+          <div class="empty-text">Select a layer to validate its nomenclature</div>
         `;
         resultsContainer.appendChild(emptyState);
         
@@ -508,19 +657,48 @@
       const invalidResults = results.filter(r => !r.isValid);
       const validResults = results.filter(r => r.isValid);
       
-      // Renderiza inválidos primeiro
-      invalidResults.forEach(result => {
-        resultsContainer.appendChild(createInvalidCard(result));
-      });
+      // MODO BATCH: Se há múltiplos resultados no modo inteligente
+      const isBatchMode = results.length > 1 && applyToPageCheckbox.checked;
       
-      // Renderiza válidos depois
-      validResults.forEach(result => {
-        resultsContainer.appendChild(createValidCard(result));
-      });
-      
-      // Adiciona botão "Fix All" se houver múltiplas layers inválidas
-      if (invalidResults.length > 1) {
-        resultsContainer.appendChild(createFixAllButton(invalidResults));
+      if (isBatchMode) {
+        // Mostra badge informativo
+        const badge = document.createElement('div');
+        badge.className = 'batch-mode-badge';
+        badge.innerHTML = `
+          <span class="badge-icon">🔍</span>
+          <span class="badge-text">Found ${results.length} layers with the same name</span>
+        `;
+        resultsContainer.appendChild(badge);
+        
+        // Se houver inválidos, mostra APENAS 1 CARD com a quantidade
+        if (invalidResults.length > 0) {
+          const card = createBatchInvalidCard(invalidResults);
+          resultsContainer.appendChild(card);
+        }
+        
+        // Se houver válidos, mostra APENAS 1 CARD com a quantidade
+        if (validResults.length > 0) {
+          const card = createBatchValidCard(validResults);
+          resultsContainer.appendChild(card);
+        }
+      } else {
+        // MODO NORMAL: Renderiza cada layer individualmente
+        
+        // Renderiza inválidos primeiro
+        invalidResults.forEach(result => {
+          resultsContainer.appendChild(createInvalidCard(result));
+        });
+        
+        // Renderiza válidos depois
+        validResults.forEach(result => {
+          resultsContainer.appendChild(createValidCard(result));
+        });
+        
+        // Adiciona botão "Fix All" se houver múltiplas layers inválidas
+        if (invalidResults.length > 1) {
+          const fixAllBtn = createFixAllButton(invalidResults);
+          resultsContainer.appendChild(fixAllBtn);
+        }
       }
       
       // Redimensiona após renderizar (aguarda o DOM atualizar)
@@ -545,12 +723,13 @@
 
     // Listener para mensagens do plugin
     window.onmessage = (event) => {
-      console.log('Mensagem recebida da UI:', event.data);
       const msg = event.data.pluginMessage;
       
       if (msg && msg.type === 'validation-results') {
-        console.log('Renderizando resultados:', msg.results);
         renderResults(msg.results);
+      } else if (msg && msg.type === 'trigger-validation') {
+        // Plugin notificou que a seleção mudou, vamos validar
+        triggerValidation();
       }
     };
 
@@ -565,6 +744,9 @@
             height: size.height
           }
         }, '*');
+        
+        // Valida a seleção inicial
+        triggerValidation();
       }, 100);
     });
   </script>

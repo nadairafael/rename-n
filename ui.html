@@ -18,19 +18,6 @@
       overflow-x: hidden;
     }
 
-    .header {
-      background: #1e1e1e;
-      padding: 12px 16px;
-      border-bottom: 1px solid #3a3a3a;
-    }
-
-    h1 {
-      font-size: 13px;
-      font-weight: 600;
-      color: #ffffff;
-      margin: 0;
-    }
-
     .content {
       padding: 16px;
     }
@@ -230,10 +217,7 @@
     }
 
     .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
-      font-size: 11px;
+      display: none;
     }
 
     .valid-layer-name {
@@ -269,10 +253,6 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Layer Naming Validator</h1>
-  </div>
-  
   <div class="content">
     <div class="controls">
       <div class="toggle-group">
@@ -282,11 +262,7 @@
       <button class="validate-btn">Validate</button>
     </div>
 
-    <div class="results">
-      <div class="empty-state">
-        Select layers to validate
-      </div>
-    </div>
+    <div class="results"></div>
   </div>
 
   <script>
@@ -433,18 +409,41 @@
       return button;
     }
 
+    // Função para calcular dimensões baseada no conteúdo real
+    function calculateRequiredSize() {
+      // Mede a altura real do conteúdo
+      const contentHeight = document.body.scrollHeight;
+      const minHeight = 88;
+      const maxHeight = 650;
+      const padding = 10; // Padding extra para segurança
+      
+      // Calcula altura necessária
+      const calculatedHeight = contentHeight + padding;
+      
+      return {
+        width: 208,
+        height: Math.min(Math.max(calculatedHeight, minHeight), maxHeight)
+      };
+    }
+
     // Função para renderizar resultados
     function renderResults(results) {
       validationResults = results;
       resultsContainer.innerHTML = '';
       
       if (results.length === 0) {
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
-        emptyState.textContent = currentScope === 'selected' 
-          ? 'Select layers to validate' 
-          : 'No layers found on current page';
-        resultsContainer.appendChild(emptyState);
+        // Não mostra nada, apenas redimensiona
+        setTimeout(() => {
+          const size = calculateRequiredSize();
+          parent.postMessage({
+            pluginMessage: {
+              type: 'resize',
+              width: size.width,
+              height: size.height
+            }
+          }, '*');
+        }, 50);
+        
         return;
       }
       
@@ -465,6 +464,18 @@
       if (invalidResults.length > 1) {
         resultsContainer.appendChild(createFixAllButton(invalidResults));
       }
+      
+      // Redimensiona após renderizar (aguarda o DOM atualizar)
+      setTimeout(() => {
+        const size = calculateRequiredSize();
+        parent.postMessage({
+          pluginMessage: {
+            type: 'resize',
+            width: size.width,
+            height: size.height
+          }
+        }, '*');
+      }, 150);
     }
 
     // Função auxiliar para escapar HTML
@@ -484,6 +495,20 @@
         renderResults(msg.results);
       }
     };
+
+    // Redimensiona ao carregar a página inicialmente
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const size = calculateRequiredSize();
+        parent.postMessage({
+          pluginMessage: {
+            type: 'resize',
+            width: size.width,
+            height: size.height
+          }
+        }, '*');
+      }, 100);
+    });
   </script>
 </body>
 </html>

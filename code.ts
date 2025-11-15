@@ -28,7 +28,13 @@ interface FixAllMessage {
   fixes: Array<{ nodeId: string; newName: string }>;
 }
 
-type CodePluginMessage = ValidateMessage | ApplyFixMessage | FixAllMessage;
+interface ResizeMessage {
+  type: 'resize';
+  width: number;
+  height: number;
+}
+
+type CodePluginMessage = ValidateMessage | ApplyFixMessage | FixAllMessage | ResizeMessage;
 
 // Função para validar se está em kebab-case (permite -- para modificadores)
 function isKebabCase(name: string): boolean {
@@ -334,9 +340,11 @@ figma.ui.onmessage = (msg: CodePluginMessage) => {
       }
     }
     figma.notify(`${successCount} layers renomeadas com sucesso!`);
+  } else if (msg.type === 'resize') {
+    figma.ui.resize(msg.width, msg.height);
   }
 };
 
 // Mostrar UI
-figma.showUI(__html__, { width: 320, height: 480 });
+figma.showUI(__html__, { width: 208, height: 88 });
 

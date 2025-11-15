@@ -1,0 +1,16 @@
+{
+  "name": "rename-n",
+  "version": "1.0.0",
+  "description": "Figma plugin para validar e corrigir nomenclatura de layers",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.90.0",
+    "typescript": "^5.3.3"
+  }
+}
+

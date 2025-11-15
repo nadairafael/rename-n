@@ -1,0 +1,12 @@
+{
+  "name": "Layer Naming Validator",
+  "id": "rename-n-layer-validator",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}
+

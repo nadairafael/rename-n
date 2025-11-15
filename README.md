@@ -1,0 +1,101 @@
+# rename-n - Layer Naming Validator
+
+Plugin do Figma para validar e corrigir nomenclatura de layers seguindo padrões kebab-case.
+
+## Regras de Nomenclatura
+
+### Formato Base
+- ✅ kebab-case (minúsculo + hífen)
+- ❌ camelCase, snake_case, PascalCase
+
+### Hierarquia de Containers
+- `[nome]-v-stack` → vertical stack (auto-layout)
+- `[nome]-h-stack` → horizontal stack (auto-layout)
+- `[nome]-container` → agrupamento funcional
+- `[posição/função]-wrapper` → envolve elementos
+
+### Modificadores
+Use `--` (double dash) para variações:
+- `menu--item`
+- `button--primary`
+- `card--elevated`
+
+### Prefixo de Projeto
+Apenas no frame raiz da tela:
+- `fm--web-app`
+- `fm--mobile-app`
+
+## Como Instalar
+
+1. Abra o Figma
+2. Vá em **Plugins** → **Development** → **Import plugin from manifest...**
+3. Selecione o arquivo `manifest.json` deste projeto
+
+## Como Usar
+
+1. Abra o plugin: **Plugins** → **Development** → **Layer Naming Validator**
+2. Escolha o escopo:
+   - **Selected Layers**: valida apenas layers selecionadas
+   - **Current Page**: valida todas as layers da página atual
+3. Clique em **Validate**
+4. Revise os resultados:
+   - ✅ Layers válidas (já seguem as regras)
+   - ❌ Layers inválidas (com sugestões de correção)
+5. Para corrigir:
+   - Clique em **Apply Fix** em uma layer específica
+   - Ou clique em **Fix All** para corrigir todas de uma vez
+
+## Desenvolvimento
+
+### Pré-requisitos
+- Node.js instalado
+
+### Setup
+```bash
+npm install
+```
+
+### Build
+```bash
+npm run build
+```
+
+### Watch Mode (desenvolvimento)
+```bash
+npm run watch
+```
+
+## Estrutura do Projeto
+
+```
+rename-n/
+├── manifest.json     # Configuração do plugin
+├── code.ts          # Lógica principal (sandbox do Figma)
+├── code.js          # Compilado
+├── ui.html          # Interface do usuário
+├── ui.ts            # Lógica da UI
+├── ui.js            # Compilado
+├── package.json     # Dependências
+└── tsconfig.json    # Config TypeScript
+```
+
+## Exemplos de Validação
+
+### ✅ Nomes Válidos
+```
+content-v-stack
+header-container
+left-wrapper
+menu--item
+button--primary
+fm--web-app
+```
+
+### ❌ Nomes Inválidos
+```
+contentStack       → content-stack
+header_container   → header-container
+LeftWrapper        → left-wrapper
+menu__item         → menu--item
+```
+

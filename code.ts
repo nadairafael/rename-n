@@ -346,5 +346,5 @@ figma.ui.onmessage = (msg: CodePluginMessage) => {
 };
 
 // Mostrar UI
-figma.showUI(__html__, { width: 208, height: 88 });
+figma.showUI(__html__, { width: 240, height: 100 });
 

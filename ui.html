@@ -79,7 +79,7 @@
     }
 
     .results {
-      margin-top: 0;
+      margin-top: 16px;
     }
     
     .results:empty {
@@ -129,7 +129,6 @@
       background: #2c2c2c;
       padding: 12px;
       border-radius: 6px;
-      border-left: 3px solid #0d99ff;
     }
 
     .current-name {
@@ -169,7 +168,6 @@
       padding: 12px;
       background: rgba(248, 113, 113, 0.08);
       border-radius: 6px;
-      border-left: 3px solid #f87171;
     }
 
     .errors-title {
@@ -264,6 +262,24 @@
 
     .empty-state {
       display: none;
+    }
+
+    .empty-state-message {
+      text-align: center;
+      padding: 32px 16px;
+      color: #999;
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .empty-text {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #999;
     }
 
     .valid-layer-name {
@@ -466,7 +482,15 @@
       resultsContainer.innerHTML = '';
       
       if (results.length === 0) {
-        // Não mostra nada, apenas redimensiona
+        // Mostra mensagem para selecionar layers
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state-message';
+        emptyState.innerHTML = `
+          <div class="empty-icon">👆</div>
+          <div class="empty-text">Selecione um layer para validar sua nomenclatura</div>
+        `;
+        resultsContainer.appendChild(emptyState);
+        
         setTimeout(() => {
           const size = calculateRequiredSize();
           parent.postMessage({

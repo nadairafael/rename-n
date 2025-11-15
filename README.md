@@ -34,14 +34,14 @@ Apenas no frame raiz da tela:
 ## Como Usar
 
 1. Abra o plugin: **Plugins** → **Development** → **Layer Naming Validator**
-2. Escolha o escopo:
-   - **Selected Layers**: valida apenas layers selecionadas
-   - **Current Page**: valida todas as layers da página atual
-3. Clique em **Validate**
-4. Revise os resultados:
+2. **Validação Automática**: Simplesmente selecione um ou mais layers no Figma
+   - O plugin automaticamente mostra se a nomenclatura está correta
    - ✅ Layers válidas (já seguem as regras)
    - ❌ Layers inválidas (com sugestões de correção)
-5. Para corrigir:
+3. **Validação Manual**: Para validar a página inteira
+   - Marque a opção **Apply to current page**
+   - Clique em **Validate**
+4. Para corrigir:
    - Clique em **Apply Fix** em uma layer específica
    - Ou clique em **Fix All** para corrigir todas de uma vez
 

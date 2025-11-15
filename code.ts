@@ -200,20 +200,20 @@ function validateLayerName(node: SceneNode): ValidationResult {
   const hasDoubleUnderscore = /__/.test(currentName);
 
   if (hasUpperCase) {
-    errors.push('Contém maiúsculas');
+    errors.push('Contains uppercase letters');
   }
   if (hasDoubleUnderscore) {
-    errors.push('Uso incorreto de modificadores (use -- ao invés de __)');
+    errors.push('Incorrect use of modifiers (use -- instead of __)');
   } else if (hasUnderscore) {
-    errors.push('Contém underscores (_)');
+    errors.push('Contains underscores (_)');
   }
   if (hasSpace) {
-    errors.push('Contém espaços');
+    errors.push('Contains spaces');
   }
 
   // 3. Validar hierarquia de sufixos
   if (!hasValidHierarchy(suggestedName)) {
-    errors.push('Sufixo de hierarquia inválido (use -v-stack, -h-stack, -container ou -wrapper)');
+    errors.push('Invalid hierarchy suffix (use -v-stack, -h-stack, -container or -wrapper)');
   }
 
   // 4. Validar estrutura hierárquica (Stack → Container → Wrapper → Element)
@@ -225,12 +225,12 @@ function validateLayerName(node: SceneNode): ValidationResult {
     
     // Elementos só podem estar dentro de Wrapper
     if (parentType === 'stack') {
-      errors.push('Elementos devem estar dentro de Container ou Wrapper, não diretamente em Stack');
+      errors.push('Elements must be inside Container or Wrapper, not directly in Stack');
       
       // Sugestão: adicionar sufixo apropriado
       suggestedName = `${suggestedName}-wrapper`;
     } else if (parentType === 'container') {
-      errors.push('Elementos devem estar dentro de Wrapper, não diretamente em Container');
+      errors.push('Elements must be inside Wrapper, not directly in Container');
       
       // Sugestão: adicionar sufixo apropriado
       suggestedName = `${suggestedName}-wrapper`;
@@ -240,7 +240,7 @@ function validateLayerName(node: SceneNode): ValidationResult {
       
       if (!suggestedName.endsWith(`-${wrapperContext}`)) {
         suggestedName = `${suggestedName}-${wrapperContext}`;
-        errors.push('Falta contexto do wrapper pai');
+        errors.push('Missing parent wrapper context');
       }
     } else if (parentType === 'element') {
       // Pai é elemento, buscar wrapper mais próximo
@@ -249,10 +249,10 @@ function validateLayerName(node: SceneNode): ValidationResult {
       if (nearestWrapper) {
         if (!suggestedName.endsWith(`-${nearestWrapper}`)) {
           suggestedName = `${suggestedName}-${nearestWrapper}`;
-          errors.push('Falta contexto do wrapper');
+          errors.push('Missing wrapper context');
         }
       } else {
-        errors.push('Elemento deve estar dentro de uma hierarquia com Wrapper');
+        errors.push('Element must be inside a hierarchy with Wrapper');
       }
     }
   }
@@ -330,7 +330,7 @@ figma.ui.onmessage = (msg: CodePluginMessage) => {
   } else if (msg.type === 'apply-fix') {
     const success = applyFix(msg.nodeId, msg.newName);
     if (success) {
-      figma.notify('Layer renomeada com sucesso!');
+      figma.notify('Layer renamed successfully!');
     }
   } else if (msg.type === 'fix-all') {
     let successCount = 0;
@@ -339,12 +339,41 @@ figma.ui.onmessage = (msg: CodePluginMessage) => {
         successCount++;
       }
     }
-    figma.notify(`${successCount} layers renomeadas com sucesso!`);
+    figma.notify(`${successCount} layers renamed successfully!`);
   } else if (msg.type === 'resize') {
     figma.ui.resize(msg.width, msg.height);
   }
 };
 
+// Listener para mudanças de seleção
+figma.on('selectionchange', () => {
+  const selection = figma.currentPage.selection as SceneNode[];
+  
+  if (selection.length > 0) {
+    const results = selection.map(node => validateLayerName(node));
+    figma.ui.postMessage({
+      type: 'validation-results',
+      results
+    } as ValidationMessage);
+  } else {
+    // Limpa os resultados quando não há seleção
+    figma.ui.postMessage({
+      type: 'validation-results',
+      results: []
+    } as ValidationMessage);
+  }
+});
+
 // Mostrar UI
 figma.showUI(__html__, { width: 240, height: 100 });
+
+// Valida a seleção inicial quando o plugin é aberto
+const initialSelection = figma.currentPage.selection as SceneNode[];
+if (initialSelection.length > 0) {
+  const results = initialSelection.map(node => validateLayerName(node));
+  figma.ui.postMessage({
+    type: 'validation-results',
+    results
+  } as ValidationMessage);
+}
 

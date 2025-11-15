@@ -1,4 +1,4 @@
-# rename-n - Layer Naming Validator
+# rename-n
 
 Plugin do Figma para validar e corrigir nomenclatura de layers seguindo padrões kebab-case.
 

@@ -1,4 +1,4 @@
-# Casos de Teste para o Plugin
+pare# Casos de Teste para o Plugin
 
 ## Como Testar
 

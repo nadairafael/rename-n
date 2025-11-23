@@ -577,10 +577,8 @@
       // Mostra o "Layer select" quando há resultados
       inputSection.classList.remove('hidden');
       
-      // Atualiza o badge com o nome da primeira layer
-      const firstName = results[0].currentName;
-      const prefix = firstName.split('_')[0] + '_';
-      layerBadge.textContent = prefix;
+      // Atualiza o badge com o nome completo da layer selecionada
+      layerBadge.textContent = results[0].currentName;
       
       // Atualiza badge no tab "Current page" (só mostra se houver mais de 1 layer)
       if (results.length > 1) {

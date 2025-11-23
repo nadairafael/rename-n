@@ -58,7 +58,6 @@
     .plugin-container {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
       background: var(--color-bg);
       overflow: hidden;
     }
@@ -384,6 +383,7 @@
     const resultsContainer = document.getElementById('results');
     const layerBadge = document.getElementById('layerBadge');
     const pageBadge = document.getElementById('pageBadge');
+    const inputSection = document.getElementById('inputSection');
 
     // Tab switching
     tabs.forEach(tab => {
@@ -457,7 +457,6 @@
           </div>
         </div>
         <div class="actions">
-          <button class="btn btn-secondary">Clear</button>
           <button class="btn btn-primary batch-fix-btn">Fix all</button>
         </div>
       `;
@@ -506,7 +505,6 @@
           </div>
         </div>
         <div class="actions">
-          <button class="btn btn-secondary">Clear</button>
           <button class="btn btn-primary apply-fix-btn">${buttonText}</button>
         </div>
       `;
@@ -560,16 +558,19 @@
         `;
         resultsContainer.appendChild(emptyState);
         
-        setTimeout(() => {
-          const size = calculateRequiredSize();
-          parent.postMessage({
-            pluginMessage: {
-              type: 'resize',
-              width: size.width,
-              height: size.height
-            }
-          }, '*');
-        }, 50);
+        // Força o navegador a recalcular o layout antes de redimensionar
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const size = calculateRequiredSize();
+            parent.postMessage({
+              pluginMessage: {
+                type: 'resize',
+                width: size.width,
+                height: size.height
+              }
+            }, '*');
+          });
+        });
         
         return;
       }
@@ -621,17 +622,19 @@
         });
       }
       
-      // Redimensiona após renderizar
-      setTimeout(() => {
-        const size = calculateRequiredSize();
-        parent.postMessage({
-          pluginMessage: {
-            type: 'resize',
-            width: size.width,
-            height: size.height
-          }
-        }, '*');
-      }, 150);
+      // Redimensiona após renderizar usando requestAnimationFrame para garantir que o DOM foi atualizado
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const size = calculateRequiredSize();
+          parent.postMessage({
+            pluginMessage: {
+              type: 'resize',
+              width: size.width,
+              height: size.height
+            }
+          }, '*');
+        });
+      });
     }
 
     // Função auxiliar para escapar HTML
